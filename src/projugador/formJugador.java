@@ -8,6 +8,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
+import java.io.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class formJugador extends javax.swing.JFrame {
 
@@ -30,6 +33,8 @@ public class formJugador extends javax.swing.JFrame {
         txtid.setEnabled(false);
         dtm.setRowCount(0);
         // Jugador jugador = new Jugador();
+        // Invocar método para actualizar la tabla al cargar el form
+        actAlJugador();
     }
 
     /**
@@ -281,7 +286,11 @@ public class formJugador extends javax.swing.JFrame {
         if (aljugador.size() == 0) {
             txtid.setText("1");
         } else {
-            txtid.setText(String.valueOf((aljugador.size() + 1)));
+            //txtid.setText(String.valueOf((aljugador.size() + 1)));
+            for (Jugador jugador : aljugador) {
+                txtid.setText(String.valueOf(Integer.parseInt(jugador.getId())+1));
+            }
+            
         }
         // Validar los campos de entrada antes de agregar
         if (camposValidos()) {
@@ -292,8 +301,33 @@ public class formJugador extends javax.swing.JFrame {
             ojugador.setNivel(txtnivel.getText());
             ojugador.setJuego(txtjuego.getText());
             ojugador.setScore(txtscore.getText());
+            
             // Agregar este objeto al ArrayList
             aljugador.add(ojugador);
+            
+            // Agregar al archivo jugador.txt
+            
+            File fichero = null;
+            FileWriter writer = null;
+            PrintWriter pw = null;
+            try
+            {
+                //fichero = new File("C:\\directorioArchivo\\archivo.txt");
+                //fichero = new File("C:/x/datos1.txt");
+                fichero = new File("jugador.txt");
+                writer = new FileWriter(fichero,true); // true: Adicionar, false: crearlo
+                pw = new PrintWriter(writer);
+                //for (int i = 0; i <5; i++) {
+                    
+                    pw.println(ojugador.getId()+";"+ojugador.getNombre()+";"+ojugador.getNivel()+";"+ojugador.getJuego()+";"+ojugador.getScore()+";");
+                    //pw.println("Linea " + i);
+                    //pw.println("Fila "+ i);
+                //}
+                pw.flush();
+            } catch (Exception e) {
+                e.printStackTrace();
+            } 
+            // Fin agregar
 
             o[0] = txtid.getText().trim();
             o[1] = txtnombre.getText().trim();
@@ -316,7 +350,72 @@ public class formJugador extends javax.swing.JFrame {
         //return !txtid.getText().isEmpty() && !txtnombre.getText().isEmpty() && !txtnivel.getText().isEmpty() && !txtjuego.getText().isEmpty() && !txtscore.getText().isEmpty();
         return !txtid.getText().isEmpty() && !txtnombre.getText().isEmpty() && !txtnivel.getText().isEmpty() && !txtjuego.getText().isEmpty() && !txtscore.getText().isEmpty();
     }
+// Metodo para actualizar el arrayList
+    
+    private void actAlJugador(){
+        File archivo = null;
+        FileReader reader = null;
+        BufferedReader buffer = null;
+        try {
+                //archivo = new File("C:/x/datos.txt");
+                archivo = new File("jugador.txt");
+                if (archivo.exists()){
+                    reader = new FileReader (archivo);
+                    buffer = new BufferedReader(reader);
+                    String linea;
+                    while( (linea=buffer.readLine()) != null) {
+                        // recorrer la vble linea y quitar punto y coma
+                        String[] parts = linea.split(";");
+                        String mid = parts[0]; 
+                        String mnombre = parts[1]; 
+                        String mnivel = parts[2]; 
+                        String mjuego = parts[3]; 
+                        String mscore = parts[4];
+                        // Actualizar el arreglo de la tabla (mostrar)
+                        o[0] = mid;
+                        o[1] = mnombre;
+                        o[2] = mnivel;
+                        o[3] = mjuego;
+                        o[4] = mscore;
+                        dtm.addRow(o);
+                        // Actualizar el arrayList alJugador
+                        Jugador objJugador = new Jugador();
+                        objJugador.setId(mid);
+                        objJugador.setNombre(mnombre);
+                        objJugador.setNivel(mnivel);
+                        objJugador.setJuego(mjuego);
+                        objJugador.setScore(mscore);
+                        aljugador.add(objJugador);
+                    } 
+                }
+                /*else{
+                    System.out.println("El archivo jugador.txt NO EXISTE");
+                }*/
+                
+            }
+        catch(Exception e){
+            e.printStackTrace();
+        }
+    }
 
+// Método para refrescar los datos del archivo jugador.txt
+    private void refrescarJugadortxt(){
+        try {
+            File archivoAnterior = new File("jugador.txt");
+            archivoAnterior.delete();
+            File nuevoArchivo = new File("jugador.txt");
+            FileWriter archivoJugador = new FileWriter(nuevoArchivo,false);
+            // Recorrer el arrayList aljugador para actualizar
+            for (Jugador jugador : aljugador) {
+                    archivoJugador.write(jugador.getId()+";"+jugador.getNombre()+";"+jugador.getNivel()+";"+jugador.getJuego()+";"+jugador.getScore()+";"+"\n");
+                // Agregar los registros del array List
+            }
+            archivoJugador.close();
+        } catch (IOException ex) {
+            Logger.getLogger(formJugador.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
 // Método para limpiar los campos de entrada después de agregar
     private void limpiarCampos() {
         txtid.setText("");
@@ -346,6 +445,7 @@ public class formJugador extends javax.swing.JFrame {
 
         //otra forma de iterar o recorrer el arraylist
         Iterator<Jugador> iterator = aljugador.iterator();
+        boolean encontro = false;
         while (iterator.hasNext()) {
             Jugador jugador = iterator.next();
             if (jugador.getId().equals(id)) {
@@ -357,16 +457,19 @@ public class formJugador extends javax.swing.JFrame {
                     // Actualiza la interfaz de usuario si es necesario (por ejemplo, actualiza la tabla)
                     actualizarTabla();
                     limpiarCampos();
+                    refrescarJugadortxt();
+                    encontro = true;
                     //  txtid.setEnabled(false);
-                    return; // Sal del método después de eliminar el jugador
+                    break; // Sal del método después de eliminar el jugador
                 }
-            } else {
-                JOptionPane.showMessageDialog(null, "No se encontró ningún jugador con el ID " + id);
-                System.out.println("No se encontró ningún jugador con el ID " + id);
-            }
+            } 
         }
-        // Si no se encuentra ningún jugador con el ID proporcionado
+        if (!encontro){
+            JOptionPane.showMessageDialog(null, "No se encontró ningún jugador con el ID " + id);
+        }
 
+
+    
     }//GEN-LAST:event_btneliminarActionPerformed
 
     private void btnmostrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnmostrarActionPerformed
@@ -415,24 +518,27 @@ public class formJugador extends javax.swing.JFrame {
     }//GEN-LAST:event_btnactualizarActionPerformed
 
     private void btneditarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btneditarActionPerformed
-        Jugador ojugadoreditar = new Jugador();
-        txtid.setEnabled(true);
-        for (Jugador jugador : aljugador) {
-            if (jugador.getId().equals(txtid.getText())) {
-                ojugadoreditar.setId(txtid.getText());
-                ojugadoreditar.setNombre(txtnombre.getText());
-                ojugadoreditar.setNivel(txtnivel.getText());
-                ojugadoreditar.setJuego(txtjuego.getText());
-                ojugadoreditar.setScore(txtscore.getText());
-                aljugador.set(posicion, ojugadoreditar);
-                JOptionPane.showMessageDialog(null, "Se ha actualizado el jugador con ID:" + ojugadoreditar.getId());
-                actualizarTabla();
-                limpiarCampos();
-
-                break;
+        FileWriter archivoJugador = null;
+        
+            Jugador ojugadoreditar = new Jugador();
+            txtid.setEnabled(true);
+            for (Jugador jugador : aljugador) {
+                if (jugador.getId().equals(txtid.getText())) {
+                    ojugadoreditar.setId(txtid.getText());
+                    ojugadoreditar.setNombre(txtnombre.getText());
+                    ojugadoreditar.setNivel(txtnivel.getText());
+                    ojugadoreditar.setJuego(txtjuego.getText());
+                    ojugadoreditar.setScore(txtscore.getText());
+                    aljugador.set(posicion, ojugadoreditar);
+                    JOptionPane.showMessageDialog(null, "Se ha actualizado el jugador con ID:" + ojugadoreditar.getId());
+                    actualizarTabla();
+                    limpiarCampos();
+                    break;
+                }
             }
-        }
-
+            // Actualizar jugador.txt
+            refrescarJugadortxt();
+            
     }//GEN-LAST:event_btneditarActionPerformed
 
     /**
@@ -466,6 +572,7 @@ public class formJugador extends javax.swing.JFrame {
         java.awt.EventQueue.invokeLater(() -> {
             new formJugador().setVisible(true);
         });
+        
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
