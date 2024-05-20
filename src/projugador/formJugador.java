@@ -68,6 +68,7 @@ public class formJugador extends javax.swing.JFrame {
         jScrollPane2 = new javax.swing.JScrollPane();
         tabla = new javax.swing.JTable();
         jLabel6 = new javax.swing.JLabel();
+        btnsalir = new javax.swing.JButton();
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -183,6 +184,13 @@ public class formJugador extends javax.swing.JFrame {
 
         jLabel6.setIcon(new javax.swing.ImageIcon(getClass().getResource("/projugador/juego (1).png"))); // NOI18N
 
+        btnsalir.setText("SALIR");
+        btnsalir.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnsalirActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -234,13 +242,19 @@ public class formJugador extends javax.swing.JFrame {
                         .addGap(5, 5, 5)
                         .addComponent(btnbuscar)))
                 .addContainerGap(97, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addComponent(btnsalir)
+                .addGap(28, 28, 28))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(83, 83, 83)
+                        .addContainerGap()
+                        .addComponent(btnsalir)
+                        .addGap(54, 54, 54)
                         .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 129, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(44, 44, 44)
@@ -541,6 +555,10 @@ public class formJugador extends javax.swing.JFrame {
             
     }//GEN-LAST:event_btneditarActionPerformed
 
+    private void btnsalirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnsalirActionPerformed
+        System.exit(0);
+    }//GEN-LAST:event_btnsalirActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -582,6 +600,7 @@ public class formJugador extends javax.swing.JFrame {
     private javax.swing.JButton btneditar;
     private javax.swing.JButton btneliminar;
     private javax.swing.JButton btnmostrar;
+    private javax.swing.JButton btnsalir;
     private javax.swing.JLabel id;
     private javax.swing.JInternalFrame jInternalFrame1;
     private javax.swing.JLabel jLabel4;
